@@ -3,6 +3,17 @@
 Tracework separates review generation, workflow orchestration, enforceable evidence checks,
 human decisions, and isolated harness experiments. The default engine is deterministic.
 
+![Local review, isolated Harness² improvement, and hosted replay](images/architecture.png)
+
+**How to read this:** the upper lane is the local application; the middle lane is an isolated
+experiment using a custom adapter; the lower lane is the hosted recording player. Experiment
+results are artifacts for inspection, not automatic runtime configuration changes. The graphic
+was generated with image_gen and checked against the implementation; the
+[generation prompt](images/architecture-prompt.txt) is included for reproducibility.
+
+New to the project? Follow the [step-by-step tests](testing.md) or
+[Türkçe test rehberi](testing.tr.md) before reading the implementation details below.
+
 ## Online review path
 
 `read → review → verify → approval → publish / end`

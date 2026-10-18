@@ -1,0 +1,57 @@
+Generation mode: Built-in image_gen tool
+Asset: Tracework document review architecture
+
+Create one detailed but exceptionally clear software architecture infographic for the open-source demo "Tracework". English text, landscape 16:10, high resolution around 3200 x 2000. This is a NEW raster graphic for a GitHub README. Style: precise research-paper diagram, white background, fine slate borders, restrained pale teal/blue/purple/rose panels, refined serif section headings, crisp sans-serif card text, thin technical arrows, plenty of whitespace. Readable at GitHub README width. Not a glossy marketing poster, no photos, no robots, no gradients, no official vendor logos. All words must be accurately spelled and no text may be clipped.
+
+TITLE: "Tracework"
+SUBTITLE: "Document review, harness experiments, and browser replay"
+
+The diagram contains THREE clearly separated horizontal lanes, vertically stacked. Each lane is full width and shows a distinct responsibility. Use small labels, rounded panels, simple document/database/checkpoint icons, compact cards, and meaningful directional arrows. No crossing arrows. Do not merge the lanes into a single production pipeline.
+
+LANE 1 (top, largest, pale blue/teal):
+Heading "1  Local review application"
+Subtitle "Real LangGraph workflow"
+Show five left-to-right white cards with arrows:
+"Source document" -> "Review" -> "Verify evidence" -> "Human decision" -> "Local report"
+Below "Source document": "Untrusted text"
+Below "Review": "Offline rules" and "Optional Ollama model"
+Below "Verify evidence": "Exact quote + source line"
+Below "Human decision": "Pause / resume"
+Below "Local report": "One report per run"
+The arrow Human decision -> Local report MUST be labelled "Approve".
+A second downward short red branch from Human decision leads to a small outlined box "Reject: no report".
+A database/checkpoint symbol below the graph labelled "SQLite checkpoints" connects with a thin blue line to the workflow, showing persistent state across restarts. A separate symbol below Local report labelled "Unique report key" indicates idempotent publication. Clearly show these as separate controls.
+Small text at bottom of this lane: "Document text cannot grant approval."
+
+LANE 2 (middle, pale rose/purple):
+Heading "2  Isolated Harness² experiments"
+Subtitle "Real upstream core + custom document adapter"
+Four left-to-right cards:
+"Development documents" -> "Harness²" -> "Document adapter" -> "Fresh LangGraph runs"
+Subtext under Harness²: "Propose · Probe · Compose"
+Subtext under Document adapter: "Allowlisted prompt profiles"
+Subtext under Fresh LangGraph runs: "Stop before publication"
+Draw a return arrow from Fresh LangGraph runs back to Harness² along the lower gutter, clearly labelled "Review artifacts + execution traces".
+Near Harness² show a small attached card "Scripted editor" with subtext "Predefined profile expansion". This must make clear the editor is scripted, not self-learning AI.
+At the far right or lower right of this lane, a separate small card "Independent holdout evaluation" with subtext "Separate synthetic documents". It should be visually separate from development-document adaptation and NOT feed hidden labels into Harness².
+Short lane footer: "No external actions. No model calls in the default experiment."
+Do NOT draw an arrow deploying an automatically optimized harness into the live application, because that feature is not implemented.
+
+LANE 3 (bottom, pale neutral gray):
+Heading "3  Hosted walkthrough"
+Three left-to-right cards:
+"Recorded graph runs" -> "Static replay JSON" -> "Interactive browser replay"
+Small line below: "No Python backend · No live model · Decisions stay in the browser session"
+Show this lane as a playback/export surface, NOT as the live application or a genuine new experiment.
+
+Footer, small and understated: "Independent educational demo · Synthetic documents"
+
+Accuracy:
+The default reviewer uses deterministic rules. Optional Ollama is only for interactive local review.
+Harness²'s core orchestration is real but the editor is deliberately scripted.
+Evidence validation and human approval are enforced outside editable prompt text.
+GitHub Pages only plays recorded results; no backend, persistence or live optimization there.
+Do not invent cloud services, distributed queues, multi-agent execution, tool APIs, provider logos, production guarantees or benchmark scores.
+No references to any other project or company.
+Output must be a beautiful, balanced, readable architecture diagram that newcomers and engineers can both understand.
+

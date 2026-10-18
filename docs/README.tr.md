@@ -3,6 +3,15 @@
 Tracework, kurgu proje belgelerini inceleyen bağımsız bir AI agent demosudur. Gerçek LangGraph iş
 akışını, Harness² çekirdeğine yazılmış özel bir belge inceleme adaptörüyle birleştirir.
 
+**[Canlı tanıtımı açın](https://ibrahimsabriorene.github.io/tracework-agent-lab/)** ·
+**[Adım adım test rehberi ve beklenen sonuçlar](testing.tr.md)**
+
+![Tracework mimarisi: yerel inceleme, izole deney ve kayıt oynatımı](images/architecture.png)
+
+Üst bölüm gerçek yerel inceleme akışıdır. Orta bölüm Harness²'nin özel adaptör üzerinden
+LangGraph adaylarını izole test etmesini gösterir. Alt bölüm GitHub Pages kayıt oynatımıdır.
+Deney sonucu çalışan uygulamaya otomatik uygulanmaz.
+
 ## Demo neyi gösteriyor
 
 Belge okunur, bulgular üretilir, her alıntı kaynak satırına göre doğrulanır ve iş akışı insan onayı
@@ -35,14 +44,19 @@ uv run tracework serve
 
 ## Önerilen gösterim
 
-1. Atlas belgesini Baseline profiliyle inceleyin.
-2. Evidence-aware profiline geçip yeniden çalıştırın. Bulgulardan kaynak satırına gidin.
+1. Atlas belgesini Baseline profiliyle inceleyin: **1 bulgu** beklenir.
+2. Evidence-aware profiline geçip yeniden çalıştırın: **3 bulgu** beklenir. Kaynak satırına gidin.
 3. Execution trace bölümünde adımları inceleyin.
 4. Bir raporu onaylayın; JSON çıktısını indirin. Başka bir raporu reddedin.
-5. Onay bekleyen bir iş varken uygulamayı yeniden başlatın ve yerel geçmişten devam edin.
-6. Cedar belgesindeki gömülü talimatın onay oluşturmadığını kontrol edin.
+5. Yerelde onay bekleyen bir iş varken uygulamayı yeniden başlatın ve yerel geçmişten devam edin.
+6. Cedar belgesini Evidence-aware ile çalıştırın: **2 bulgu** beklenir. Gömülü talimat onay oluşturmamalı.
 7. Harness experiments sekmesinde iki profilin bağımsız örneklerdeki sonuçlarını ve gerçek yürütme
    kayıtlarını inceleyin.
+
+Maple complete brief temiz kontrol örneğidir; iki çevrimdışı profilde de **0 bulgu** beklenir.
+Tüm belge sonuçları, kendi metninizi deneme ve otomatik testler için [test rehberini](testing.tr.md) izleyin.
+
+![Kaynak kanıtıyla inceleme ekranı](images/workspace.png)
 
 ## GitHub'daki canlı tanıtımın sınırı
 
