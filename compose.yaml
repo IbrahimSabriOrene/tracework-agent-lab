@@ -1,0 +1,14 @@
+services:
+  lab:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - tracework-data:/app/.data
+    environment:
+      TRACEWORK_ENGINE: offline
+    restart: unless-stopped
+volumes:
+  tracework-data:

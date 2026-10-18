@@ -1,0 +1,48 @@
+name: Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.7'
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - run: uv run ruff check tracework tests
+      - run: uv run ruff format --check tracework tests
+      - run: uv run pytest -q
+      - run: uv run tracework export-replay
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.7'
+          python-version: '3.12'
+      - run: uv sync --locked
+      - run: uv run --with playwright playwright install --with-deps chromium
+      - name: Start the local application
+        run: |
+          uv run tracework serve > /tmp/tracework-server.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:8765/api/health; then break; fi
+            sleep 1
+          done
+          curl --silent --fail http://127.0.0.1:8765/api/health
+      - run: uv run --with playwright python scripts/check_browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-screenshots
+          path: docs/images

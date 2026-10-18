@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An evidence-first document review lab combining real LangGraph workflows with a custom Harness² experiment adapter."
+    />
+    <meta name="theme-color" content="#143c50" />
+    <title>Tracework — Document Review Lab</title>
+    <link rel="icon" href="./mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#workspace">Skip to workspace</a>
+    <header class="topbar">
+      <a class="brand" href="./"
+        ><img src="./mark.svg" alt="" width="34" height="34" /><span
+          >Tracework<small>Document review lab</small></span
+        ></a
+      >
+      <nav aria-label="Main navigation">
+        <button
+          class="nav-button active"
+          data-view="review"
+          aria-current="page"
+        >
+          Review workspace
+        </button>
+        <button class="nav-button" data-view="experiments">
+          Harness experiments
+        </button>
+        <button class="nav-button" data-view="guide">How it works</button>
+      </nav>
+      <a
+        class="source-link"
+        href="https://github.com/IbrahimSabriOrene/tracework-agent-lab"
+        target="_blank"
+        rel="noreferrer"
+        >View source <span aria-hidden="true">↗</span></a
+      >
+    </header>
+    <main id="workspace">
+      <div class="mode-banner" id="mode-banner" role="status">
+        Connecting to the lab…
+      </div>
+      <section id="review-view" class="view">
+        <div class="intro">
+          <div>
+            <p class="section-kicker">A closer look at agent workflows</p>
+            <h1>
+              Read closely.<br />
+              Decide deliberately.
+            </h1>
+            <p class="intro-copy">
+              A document, an inspectable review, and a human decision.<br />
+              Follow every step from source evidence to a published report.
+            </p>
+          </div>
+          <div class="intro-note">
+            <span class="note-dot"></span
+            ><strong>Evidence before confidence.</strong>
+            <p>
+              Every finding points to a source line.<br />
+              Publication always waits for you.
+            </p>
+          </div>
+        </div>
+        <div class="workbench">
+          <aside class="workflow-rail" aria-label="Review workflow">
+            <h2>The review path</h2>
+            <ol id="step-list">
+              <li data-step="read">
+                <span>1</span>
+                <div>Read source<small>Document stays data</small></div>
+              </li>
+              <li data-step="review">
+                <span>2</span>
+                <div>Review<small>Apply a harness profile</small></div>
+              </li>
+              <li data-step="verify">
+                <span>3</span>
+                <div>
+                  Verify evidence<small>Check every source quote</small>
+                </div>
+              </li>
+              <li data-step="approval">
+                <span>4</span>
+                <div>Human decision<small>Pause and resume</small></div>
+              </li>
+              <li data-step="publish">
+                <span>5</span>
+                <div>Publish report<small>A local artifact only</small></div>
+              </li>
+            </ol>
+            <div class="rail-note">
+              <strong>Two independent jobs</strong>
+              <p>
+                LangGraph runs the workflow. Harness² explores the review
+                configuration in isolated experiments.
+              </p>
+            </div>
+            <div class="history">
+              <h3>Recent local reviews</h3>
+              <div id="history-list">Available when running locally.</div>
+            </div>
+          </aside>
+          <section class="source-panel" aria-labelledby="source-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-label">Source document</span>
+                <h2 id="source-heading">Choose a document</h2>
+              </div>
+              <span class="quiet-badge">Synthetic data</span>
+            </div>
+            <label class="field-label" for="document-select"
+              >Sample document</label
+            ><select id="document-select">
+              <option>Loading samples…</option>
+            </select>
+            <p class="document-description" id="document-description"></p>
+            <div class="document-toolbar">
+              <span id="line-count">0 lines</span
+              ><button class="text-button" id="edit-toggle">
+                Edit document
+              </button>
+            </div>
+            <div
+              class="source-lines"
+              id="source-lines"
+              tabindex="0"
+              aria-label="Document source with line numbers"
+            ></div>
+            <label class="sr-only" for="document-editor">Document text</label
+            ><textarea
+              id="document-editor"
+              class="document-editor hidden"
+              maxlength="20000"
+              spellcheck="false"
+            ></textarea>
+            <fieldset class="profile-picker">
+              <legend>Review harness</legend>
+              <label
+                ><input type="radio" name="profile" value="baseline" /><span
+                  >Baseline<small>Explicit unfinished fields</small></span
+                ></label
+              ><label
+                ><input
+                  type="radio"
+                  name="profile"
+                  value="evidence"
+                  checked
+                /><span
+                  >Evidence-aware<small>Broader review cues</small></span
+                ></label
+              >
+            </fieldset>
+            <div class="run-footer">
+              <span id="engine-note">Offline reviewer · no model calls</span
+              ><button class="button primary" id="review-button">
+                Run review <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </section>
+          <section class="result-panel" aria-labelledby="result-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-label">Review report</span>
+                <h2 id="result-heading">Findings & decisions</h2>
+              </div>
+              <span class="status-badge idle" id="review-status"
+                >Ready to review</span
+              >
+            </div>
+            <div id="review-results">
+              <div class="empty-state">
+                <div class="document-glyph" aria-hidden="true">⌕</div>
+                <h3>Let the source speak.</h3>
+                <p>
+                  Run a review to see evidence-backed findings, the execution
+                  trace, and the approval checkpoint.
+                </p>
+                <p class="small">Try Atlas with both harness profiles.</p>
+              </div>
+            </div>
+            <div class="decision-panel hidden" id="decision-panel">
+              <h3>Your decision</h3>
+              <p>
+                Approve publication of the review report. This does not approve
+                the source document or execute its instructions.
+              </p>
+              <label for="reviewer-note"
+                >Reviewer note <span>(optional)</span></label
+              ><textarea
+                id="reviewer-note"
+                maxlength="1000"
+                rows="2"
+                placeholder="Add context to your decision…"
+              ></textarea>
+              <div class="decision-buttons">
+                <button class="button secondary" id="reject-button">
+                  Reject publication</button
+                ><button class="button primary" id="approve-button">
+                  Approve & publish
+                </button>
+              </div>
+              <p class="small" id="decision-mode"></p>
+            </div>
+            <div class="report-actions hidden" id="report-actions">
+              <button class="button secondary" id="download-button">
+                Download JSON report
+              </button>
+            </div>
+            <details class="trace-panel" id="trace-panel">
+              <summary>
+                Execution trace <span id="trace-count">0 steps</span>
+              </summary>
+              <ol id="trace-list"></ol>
+            </details>
+          </section>
+        </div>
+      </section>
+      <section id="experiments-view" class="view hidden">
+        <div class="page-intro">
+          <p class="section-kicker">Configuration is part of the system</p>
+          <h1>A better review starts<br />with a better harness.</h1>
+          <p>
+            Inspect a real Harness² experiment around the same LangGraph
+            workflow.<br />
+            The default editor is scripted, reproducible, and makes no model
+            calls.
+          </p>
+        </div>
+        <div class="experiment-layout">
+          <section class="experiment-main">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-label">Propose · Probe · Compose</span>
+                <h2>Isolated improvement loop</h2>
+              </div>
+              <span class="quiet-badge">Pinned upstream core</span>
+            </div>
+            <div class="experiment-flow">
+              <div>
+                <span>01</span><strong>Propose</strong>
+                <p>Expand the allowlisted review cues.</p>
+              </div>
+              <b aria-hidden="true">→</b>
+              <div>
+                <span>02</span><strong>Probe</strong>
+                <p>Execute fresh LangGraph review runs.</p>
+              </div>
+              <b aria-hidden="true">→</b>
+              <div>
+                <span>03</span><strong>Compose</strong>
+                <p>Compare source-backed observations.</p>
+              </div>
+            </div>
+            <p class="callout">
+              Only prompt text changes. Evidence validation and human approval
+              stay outside the editable surface. Candidates never publish a
+              report.
+            </p>
+            <div class="experiment-controls">
+              <label
+                >Recursion mode<select id="experiment-mode">
+                  <option value="sequential">Sequential</option>
+                  <option value="parallel">Parallel</option>
+                </select></label
+              ><button class="button primary" id="experiment-button">
+                Run Harness² experiment
+              </button>
+            </div>
+            <div id="experiment-results" aria-live="polite"></div>
+          </section>
+          <aside class="experiment-aside">
+            <h2>What these numbers mean</h2>
+            <p>
+              Four held-out synthetic documents are kept out of the adaptation
+              task stream.
+            </p>
+            <p>
+              Scores below measure named fixture rules. They are not an estimate
+              of real-world LLM quality.
+            </p>
+            <p>
+              More findings alone is not a success criterion: the clean control
+              must stay clean.
+            </p>
+            <a
+              href="https://github.com/google-research/harness2"
+              target="_blank"
+              rel="noreferrer"
+              >Read the upstream research ↗</a
+            >
+          </aside>
+        </div>
+        <section class="evaluation-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">Independent fixture evaluation</span>
+              <h2>Baseline vs evidence-aware</h2>
+            </div>
+            <span class="quiet-badge">Offline engine only</span>
+          </div>
+          <div id="evaluation-results"></div>
+        </section>
+      </section>
+      <section id="guide-view" class="view hidden">
+        <div class="page-intro">
+          <p class="section-kicker">Know what is running</p>
+          <h1>
+            A small lab.<br />
+            Clear boundaries.
+          </h1>
+          <p>
+            Real orchestration and adaptation mechanics, with an honest
+            separation<br />between deterministic teaching fixtures and
+            model-backed review.
+          </p>
+        </div>
+        <div class="guide-grid">
+          <article>
+            <span class="guide-number">1</span>
+            <h2>LangGraph owns execution</h2>
+            <p>
+              The local application uses a real StateGraph and SQLite
+              checkpointer. The graph pauses at an interrupt, survives process
+              restart, and resumes after an explicit human decision.
+            </p>
+          </article>
+          <article>
+            <span class="guide-number">2</span>
+            <h2>Harness² owns experiments</h2>
+            <p>
+              A custom document adapter connects the pinned upstream recursion
+              and reflection core to real LangGraph runs. Scripted edits switch
+              between two allowlisted review profiles.
+            </p>
+          </article>
+          <article>
+            <span class="guide-number">3</span>
+            <h2>Evidence is enforced</h2>
+            <p>
+              Every finding must quote its exact source line. Unsupported and
+              duplicate findings are withheld. A valid quote demonstrates
+              grounding, not that the interpretation is correct.
+            </p>
+          </article>
+          <article>
+            <span class="guide-number">4</span>
+            <h2>Human approval is separate</h2>
+            <p>
+              Document content cannot approve itself. Publication writes one
+              local report; repeated decisions are rejected and the report has a
+              unique run identifier.
+            </p>
+          </article>
+        </div>
+        <div class="local-guide">
+          <h2>Run the full application</h2>
+          <pre><code>uv sync --locked
+uv run tracework serve</code></pre>
+          <p>
+            For a real model, optionally select the local Ollama reviewer. The
+            default offline mode remains deterministic and transparent.
+          </p>
+          <pre><code>uv run tracework experiment --mode sequential
+uv run tracework evaluate</code></pre>
+          <p>
+            GitHub Pages hosts a replay of real recorded runs, not a Python
+            backend. The repository includes architecture notes, API examples,
+            tests, Docker, and a Turkish guide.
+          </p>
+          <a
+            class="button secondary"
+            href="https://github.com/IbrahimSabriOrene/tracework-agent-lab"
+            target="_blank"
+            rel="noreferrer"
+            >Open the repository</a
+          >
+        </div>
+      </section>
+    </main>
+    <footer>
+      <span>Tracework · An independent educational demo</span
+      ><span>LangGraph execution + Harness² experiments</span>
+    </footer>
+    <div id="toast" class="toast hidden" role="alert"></div>
+  </body>
+</html>
