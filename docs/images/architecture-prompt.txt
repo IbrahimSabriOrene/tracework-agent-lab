@@ -54,4 +54,3 @@ GitHub Pages only plays recorded results; no backend, persistence or live optimi
 Do not invent cloud services, distributed queues, multi-agent execution, tool APIs, provider logos, production guarantees or benchmark scores.
 No references to any other project or company.
 Output must be a beautiful, balanced, readable architecture diagram that newcomers and engineers can both understand.
-
