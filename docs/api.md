@@ -2,6 +2,8 @@
 
 Base URL: `http://127.0.0.1:8765`. Interactive OpenAPI documentation: `/docs`.
 This unauthenticated API is for one local user. GitHub Pages does not host it.
+FastAPI's standard Swagger page loads its vendor assets from jsDelivr; the main review UI is
+self-contained. Use `/openapi.json` when working without access to the documentation CDN.
 
 | Method | Path | Behavior |
 | --- | --- | --- |

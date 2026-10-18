@@ -115,3 +115,11 @@ def test_api_validates_input_and_blocks_browser_cross_origin_mutations(client):
     assert client.get("/api/documents").status_code == 200
     assert "expected" not in json.dumps(client.get("/api/documents").json())
     assert client.get("/api/health").headers["x-content-type-options"] == "nosniff"
+
+
+def test_openapi_is_available_and_docs_policy_does_not_weaken_the_workbench(client):
+    assert "/api/reviews" in client.get("/openapi.json").json()["paths"]
+    docs = client.get("/docs")
+    assert docs.status_code == 200
+    assert "https://cdn.jsdelivr.net" in docs.headers["content-security-policy"]
+    assert "unsafe-inline" not in client.get("/").headers["content-security-policy"]

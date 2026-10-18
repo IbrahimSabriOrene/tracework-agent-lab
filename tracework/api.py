@@ -49,7 +49,9 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
         yield
         app.state.lab.close()
 
-    app = FastAPI(title="Tracework Document Review Lab", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(
+        title="Tracework Document Review Lab", version="0.1.0", lifespan=lifespan, redoc_url=None
+    )
     app.add_middleware(
         TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"]
     )
@@ -73,6 +75,14 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
             "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
             "connect-src 'self'; base-uri 'none'; frame-ancestors 'none'"
         )
+        if request.url.path in {"/docs", "/docs/oauth2-redirect"}:
+            # FastAPI's standard Swagger page uses a CDN bundle and an inline initializer.
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "img-src 'self' data: https://fastapi.tiangolo.com; connect-src 'self'; "
+                "base-uri 'none'; frame-ancestors 'none'"
+            )
         return response
 
     @app.exception_handler(ValueError)
