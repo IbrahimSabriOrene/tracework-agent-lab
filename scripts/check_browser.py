@@ -67,10 +67,35 @@ def main():
         expect(page.locator("#review-status")).to_contain_text("Awaiting")
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
         page.screenshot(path=str(shots / "mobile.png"), full_page=True)
+        page.goto(args.url.rstrip("/") + "/animation.html")
+        expect(page.locator("#chapters button")).to_have_count(8)
+        page.set_viewport_size({"width": 1440, "height": 1100})
+        for index in range(8):
+            page.locator("#chapters button").nth(index).click()
+            assert page.evaluate("window.traceworkAnimation.position") == index * 6000
+            overflow = page.locator("#film").evaluate(
+                "svg => [...svg.querySelectorAll('text')].filter(t => {"
+                "const b=t.getBBox(); return b.x<0 || b.x+b.width>1600;"
+                "}).map(t => t.textContent)"
+            )
+            assert not overflow, overflow
+        page.locator("#restart").click()
+        page.locator("#play").click()
+        expect(page.locator("#time")).to_have_text("00:01 / 00:48")
+        page.locator("#play").click()
+        assert not page.evaluate("window.traceworkAnimation.playing")
+        page.locator("#timeline").fill("33000")
+        expect(page.locator("#scene-description")).to_contain_text("Harness²")
+        assert page.evaluate("window.traceworkAnimation.position") == 33000
+        page.set_viewport_size({"width": 390, "height": 844})
+        assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
+        page.emulate_media(reduced_motion="reduce")
+        page.goto(args.url.rstrip("/") + "/animation.html?autoplay=1")
+        assert not page.evaluate("window.traceworkAnimation.playing")
         assert not errors, errors
         browser.close()
     print(
-        "Browser checks passed: review, evidence, approval/rejection, export, navigation, mobile."
+        "Browser checks passed: review, evidence, decisions, export, navigation, mobile, animation."
     )
 
 

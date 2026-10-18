@@ -1,0 +1,35 @@
+:root { color-scheme: light; --ink: #183447; --teal: #176d70; --line: #dce5e9; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f3f6f8; color: var(--ink); font: 16px/1.55 "Segoe UI", Arial, sans-serif; }
+a { color: var(--teal); text-underline-offset: 4px; }
+button, input { font: inherit; }
+button, a { touch-action: manipulation; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #248b9d; outline-offset: 4px; }
+.page-header { max-width: 1440px; margin: auto; padding: 24px 32px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.page-header span { color: #627783; }
+main { max-width: 1440px; padding: 0 32px 32px; margin: auto; }
+#stage { background: white; border: 1px solid var(--line); overflow: hidden; border-radius: 12px; }
+#film { display: block; width: 100%; font-family: "Segoe UI", Arial, sans-serif; }
+.player { display: flex; align-items: center; gap: 16px; margin-top: 20px; }
+button { border: 1px solid #bdcfd6; background: white; color: var(--ink); border-radius: 6px; padding: 10px 16px; }
+#play { min-width: 112px; background: var(--teal); color: white; border-color: var(--teal); }
+.timeline { flex: 1; display: flex; min-width: 70px; }
+input { width: 100%; accent-color: var(--teal); }
+output { white-space: nowrap; font-variant-numeric: tabular-nums; }
+#chapters { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+#chapters button { padding: 7px 11px; font-size: 14px; }
+#chapters button[aria-current="step"] { border-color: var(--teal); background: #e3f1ee; }
+.description { min-height: 50px; max-width: 900px; margin: 20px 0 12px; }
+.note { font-size: 14px; color: #627783; max-width: 950px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (max-width: 650px) {
+  .page-header { padding: 16px; font-size: 14px; }
+  .page-header span { display: none; }
+  main { padding: 0 12px 24px; }
+  .player { gap: 8px; flex-wrap: wrap; }
+  .player button { padding: 9px 11px; }
+  .timeline { flex-basis: 45%; }
+  output { font-size: 13px; }
+  #chapters button { font-size: 13px; }
+}

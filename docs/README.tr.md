@@ -6,11 +6,18 @@ akışını, Harness² çekirdeğine yazılmış özel bir belge inceleme adapt�
 **[Canlı tanıtımı açın](https://ibrahimsabriorene.github.io/tracework-agent-lab/)** ·
 **[Adım adım test rehberi ve beklenen sonuçlar](testing.tr.md)**
 
+**[48 saniyelik akış animasyonu](https://ibrahimsabriorene.github.io/tracework-agent-lab/animation.html)** ·
+**[LinkedIn için MP4](https://ibrahimsabriorene.github.io/tracework-agent-lab/media/tracework-flow.mp4)**
+
 ![Tracework mimarisi: yerel inceleme, izole deney ve kayıt oynatımı](images/architecture.png)
 
 Üst bölüm gerçek yerel inceleme akışıdır. Orta bölüm Harness²'nin özel adaptör üzerinden
 LangGraph adaylarını izole test etmesini gösterir. Alt bölüm GitHub Pages kayıt oynatımıdır.
 Deney sonucu çalışan uygulamaya otomatik uygulanmaz.
+
+Animasyon, LangGraph `StateGraph`, `interrupt`, SQLite checkpoint ve `Command(resume=...)`
+kullanımını; ardından Harness² çekirdeği, özel adaptör ve izole aday testlerini gösterir.
+Türkçe metinli, sessiz MP4 48 saniyedir. Süreler anlatım içindir; gerçek işlem süresini ölçmez.
 
 ## Demo neyi gösteriyor
 

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Tracework nasıl çalışır? LangGraph ve Harness² entegrasyonunu anlatan 48 saniyelik animasyon." />
+    <title>Tracework — Akış animasyonu</title>
+    <link rel="icon" href="./mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./animation.css" />
+    <script src="./animation.js" defer></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <a href="./">← Demoya dön</a>
+      <span>Tracework · Sistemin çalışma akışı</span>
+      <a href="./media/tracework-flow.mp4" download>MP4 indir</a>
+    </header>
+    <main>
+      <h1 class="sr-only">LangGraph ve Harness² ile belge inceleme</h1>
+      <div id="stage">
+        <svg id="film" viewBox="0 0 1600 900" role="img" aria-labelledby="film-title film-description"></svg>
+      </div>
+      <div class="player">
+        <button id="play" type="button" aria-label="Animasyonu oynat">Oynat</button>
+        <button id="restart" type="button">Başa dön</button>
+        <label class="timeline"><span class="sr-only">Animasyon zamanı</span><input id="timeline" type="range" min="0" max="48000" step="100" value="0" /></label>
+        <output id="time" for="timeline">00:00 / 00:48</output>
+      </div>
+      <nav id="chapters" aria-label="Animasyon bölümleri"></nav>
+      <p id="scene-description" class="description" aria-live="polite"></p>
+      <p class="note">Bu animasyon uygulamanın yapısını anlatır; canlı yürütme kaydı değildir. Varsayılan inceleyici kurallarla, Harness² düzenleyicisi önceden tanımlı profil değişiklikleriyle çalışır.</p>
+    </main>
+  </body>
+</html>

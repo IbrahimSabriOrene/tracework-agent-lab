@@ -123,6 +123,20 @@ The adapter uses an upstream text-tree schema and executes our LangGraph workflo
 It never launches OpenCode or Codex. See the [architecture notes](docs/architecture.md)
 for why workflow checkpoints, task state, and publication idempotency remain separate.
 
+## Animated walkthrough
+
+[![Watch the 48-second Tracework architecture animation](docs/images/animation.png)](https://ibrahimsabriorene.github.io/tracework-agent-lab/animation.html)
+
+**[Play the animation](https://ibrahimsabriorene.github.io/tracework-agent-lab/animation.html)**
+· **[Download the MP4](https://ibrahimsabriorene.github.io/tracework-agent-lab/media/tracework-flow.mp4)**
+· [Storyboard and export instructions](docs/animation.md)
+
+Eight Turkish-captioned chapters explain source input, LangGraph `StateGraph`, evidence checks,
+`interrupt` and SQLite checkpoints, `Command(resume=...)`, Harness²'s custom adapter, isolated
+candidate runs, and hosted replay. The player supports pause, seeking, and chapter selection.
+The silent H.264 video is 1280 × 720, 24 fps, and 48 seconds long, ready to upload as a social post.
+This is an illustrative animation of the implementation, not a live execution or speed benchmark.
+
 ## Reproduce the experiments
 
 ![Harness experiment screen with execution receipt and fixture evaluation](docs/images/experiments.png)
