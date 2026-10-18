@@ -1,5 +1,6 @@
 .git
 .venv
+.mineru
 .data
 .artifacts
 __pycache__

@@ -19,3 +19,12 @@ EXPOSE 8765
 HEALTHCHECK --interval=20s --timeout=3s --start-period=10s \
     CMD ["/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health',timeout=2)"]
 CMD ["/app/.venv/bin/tracework", "serve", "--host", "0.0.0.0"]
+
+FROM runtime AS pdf
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && uv venv .mineru --python /usr/local/bin/python \
+    && uv pip install --python .mineru/bin/python mineru==4.0.12 \
+    && chown -R tracework:tracework /app/.mineru
+USER tracework

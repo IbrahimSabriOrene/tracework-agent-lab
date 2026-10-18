@@ -16,6 +16,23 @@ New to the project? Follow the [step-by-step tests](testing.md) or
 
 ## Online review path
 
+Optional PDF ingestion happens **before** the review graph:
+
+`PDF upload → bounded validation → local MinerU Basic/ONNX worker → inspect/edit extracted text → start review`
+
+MinerU 4.0.12 runs in a separate Python environment. Runtime configuration selects local models,
+CPU ONNX, and no LLM-assisted postprocessing or remote parser. Setup explicitly downloads models;
+the hosted static site cannot perform extraction. The bounded worker call is not an agent tool.
+
+Extraction stores a local JSON artifact but does not start or approve a review. The API resolves
+the artifact's UUID to trusted provenance when starting the graph. Graph state and the published
+report retain the original PDF hash, page count, parser version, initial text hash, and whether
+the reviewed text was edited. The uploaded PDF's temporary server copy is removed after parsing.
+The existing diagram begins at the resulting source text. See [PDF setup and data handling](pdf.md).
+
+Exact-quote verification applies to extracted/corrected text, not original PDF pixels. Human review
+must also assess OCR accuracy. Page-local PDF coordinates are not claimed by text-line citations.
+
 `read → review → verify → approval → publish / end`
 
 1. **Read:** store the document in graph state as untrusted text. No document command is executed.

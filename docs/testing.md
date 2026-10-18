@@ -14,6 +14,7 @@ for the default offline engine.
 | Inspect exact source quotes and execution traces | Yes | Yes |
 | Approve/reject and download JSON | Temporary replay artifact | Persistent local report |
 | Review your own plain text | No | Yes |
+| Import PDF with local MinerU | No | Optional setup; real CPU OCR |
 | Resume after stopping the Python process | No | Yes, SQLite checkpoints |
 | Run a new Harness² experiment | No, recorded receipt only | Yes, Docker/Linux/WSL |
 | Call an installed Ollama model | No | Optional configuration |
@@ -88,6 +89,9 @@ Acceptance criteria: not defined.
 Return with **View source** and run each profile. Expect **2 findings** for Baseline and
 **4 findings** for Evidence-aware. Approval should create a downloadable local JSON report.
 
+For PDF upload, follow the [MinerU setup and real scanned-PDF test](pdf.md). The optional
+`scripts/check_browser.py --pdf` check exercises actual OCR, review, approval, and provenance export.
+
 ## 3. Prove restart and decision behavior
 
 1. Start a new Atlas review and leave it awaiting a decision. Note its latest entry in
@@ -159,7 +163,7 @@ uv run ruff format --check tracework tests
 uv run pytest -q
 ```
 
-The current suite has **10 cases**. Linux runs all ten; native Windows runs eight and skips
+The current suite has **15 cases**. Linux runs all fifteen; native Windows runs thirteen and skips
 the two real Harness² recursion cases because upstream requires POSIX `fcntl` locking.
 Use Docker to run the complete suite on Windows:
 

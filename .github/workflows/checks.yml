@@ -18,8 +18,8 @@ jobs:
           version: '0.12.7'
           python-version: ${{ matrix.python }}
       - run: uv sync --locked
-      - run: uv run ruff check tracework tests
-      - run: uv run ruff format --check tracework tests
+      - run: uv run ruff check tracework tests scripts
+      - run: uv run ruff format --check tracework tests scripts
       - run: uv run pytest -q
       - run: uv run tracework export-replay
   browser:

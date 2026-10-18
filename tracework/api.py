@@ -6,7 +6,7 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,6 +14,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .documents import public_documents
 from .evaluation import evaluate
+from .pdf import MAX_PDF_BYTES, PdfError, PdfImporter
 from .reviewer import PROFILES
 from .workflow import Lab
 
@@ -25,6 +26,7 @@ class NewReview(BaseModel):
     title: str = Field(min_length=1, max_length=150)
     document: str = Field(min_length=20, max_length=20000)
     profile: str = "evidence"
+    pdf_import_id: uuid.UUID | None = None
 
 
 class Decision(BaseModel):
@@ -46,6 +48,7 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
             engine or os.getenv("TRACEWORK_ENGINE", "offline"),
         )
         app.state.experiment_lock = threading.Lock()
+        app.state.pdf = PdfImporter(data_dir or Path(os.getenv("TRACEWORK_DATA_DIR", ".data")))
         yield
         app.state.lab.close()
 
@@ -66,7 +69,8 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
             content_length = int(request.headers.get("content-length", "0"))
         except ValueError:
             return JSONResponse({"detail": "Invalid content length."}, status_code=400)
-        if content_length > 100000:
+        limit = MAX_PDF_BYTES + 65536 if request.url.path == "/api/pdf/extract" else 100000
+        if content_length > limit:
             return JSONResponse({"detail": "Request body is too large."}, status_code=413)
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -93,6 +97,10 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
     async def missing(request, exc):
         return JSONResponse({"detail": "Review or report not found."}, status_code=404)
 
+    @app.exception_handler(PdfError)
+    async def invalid_pdf(request, exc):
+        return JSONResponse({"detail": str(exc)}, status_code=exc.status)
+
     @app.get("/api/health")
     def health():
         return {
@@ -101,6 +109,7 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
             "engine": app.state.lab.engine,
             "persistence": "SQLite",
             "framework": "LangGraph",
+            "pdf": app.state.pdf.capabilities(),
         }
 
     @app.get("/api/documents")
@@ -117,7 +126,20 @@ def create_app(data_dir: Path | None = None, engine: str | None = None) -> FastA
 
     @app.post("/api/reviews", status_code=201)
     def start(review: NewReview):
-        return app.state.lab.start(review.title, review.document, review.profile)
+        source = (
+            app.state.pdf.source(str(review.pdf_import_id), review.document)
+            if review.pdf_import_id
+            else None
+        )
+        return app.state.lab.start(review.title, review.document, review.profile, source=source)
+
+    @app.post("/api/pdf/extract", status_code=201)
+    def extract_pdf(file: UploadFile):
+        try:
+            payload = file.file.read(MAX_PDF_BYTES + 1)
+            return app.state.pdf.extract(payload, file.filename or "")
+        finally:
+            file.file.close()
 
     def check_id(run_id):
         try:

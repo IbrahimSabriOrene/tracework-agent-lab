@@ -6,6 +6,8 @@ akışını, Harness² çekirdeğine yazılmış özel bir belge inceleme adapt�
 **[Canlı tanıtımı açın](https://ibrahimsabriorene.github.io/tracework-agent-lab/)** ·
 **[Adım adım test rehberi ve beklenen sonuçlar](testing.tr.md)**
 
+**[MinerU ile ücretsiz yerel PDF yükleme ve OCR](pdf.tr.md)**
+
 **[48 saniyelik akış animasyonu](https://ibrahimsabriorene.github.io/tracework-agent-lab/animation.html)** ·
 **[LinkedIn için MP4](https://ibrahimsabriorene.github.io/tracework-agent-lab/media/tracework-flow.mp4)**
 
@@ -29,6 +31,10 @@ Varsayılan inceleyici açık kurallarla çalışan bir simülasyondur; LLM olar
 döngüsü gerçektir, ancak düzenleyici önceden tanımlı profil değişikliğini uygular. Bu, kendiliğinden
 öğrenen bir model veya yeni strateji keşfi iddiası değildir. İstenirse yerel incelemede Ollama modeli
 kullanılabilir; deney düzenleyicisi bu durumda da betik tabanlı kalır.
+
+İsteğe bağlı PDF girişi MinerU 4.0.12 Basic/ONNX ile CPU üzerinde çalışır. Ayrı kurulum ve model
+indirme sonrasında PDF'yi yükleyin, çıkarılmış metni kontrol edin ve aynı inceleme/onay akışına
+devam edin. API anahtarı veya ücretli OCR gerekmez. [Kurulum adımları](pdf.tr.md).
 
 ## Hızlı başlatma
 

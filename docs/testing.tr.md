@@ -14,6 +14,7 @@ gerektirmez.
 | Kaynak alıntısı ve işlem adımları | Etkileşimli inceleme | Etkileşimli inceleme |
 | Onay, ret ve JSON indirme | Geçici kayıt oynatımı | Kalıcı yerel rapor |
 | Kendi metninizi inceleme | Yok | Var |
+| MinerU ile PDF yükleme | Yok | İsteğe bağlı kurulum; gerçek yerel CPU OCR |
 | Sunucu yeniden başladıktan sonra devam | Yok | SQLite checkpoint ile var |
 | Yeni Harness² deneyi | Yok; önceki deneyin kaydı gösterilir | Docker/Linux/WSL ile var |
 | Yerel Ollama modeli | Yok | İsteğe bağlı |
@@ -88,6 +89,9 @@ Acceptance criteria: not defined.
 **View source** ile kaynak görünümüne dönüp iki profili çalıştırın. Baseline **2**, Evidence-aware
 **4 bulgu** üretmeli. Onay sonrasında yerel JSON raporu indirilebilmeli.
 
+PDF yüklemek için [MinerU kurulum ve taranmış PDF rehberini](pdf.tr.md) izleyin.
+`scripts/check_browser.py --pdf` gerçek OCR, inceleme, onay ve kaynak bilgisi çıktısını test eder.
+
 ## 3. Yeniden başlatma, onay ve ret testi
 
 1. Yeni bir Atlas incelemesi başlatın, karar vermeyin. **Recent local reviews** listesindeki
@@ -160,7 +164,7 @@ uv run ruff format --check tracework tests
 uv run pytest -q
 ```
 
-Mevcut pakette **10 test durumu** vardır. Linux'ta tamamı çalışır. Windows Python'ında sekizi
+Mevcut pakette **15 test durumu** vardır. Linux'ta tamamı çalışır. Windows Python'ında on üçü
 çalışır, upstream POSIX `fcntl` kilidi gerektiren iki Harness² testi atlanır. Windows'ta tüm
 paketi çalıştırmak için Docker kullanın:
 

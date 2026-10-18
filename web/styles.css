@@ -391,6 +391,12 @@ select {
   font-size: 10px;
   color: var(--muted);
 }
+.pdf-import { margin: 0 0 18px; padding: 15px; background: #f5f8fa; border: 1px solid var(--line); border-radius: 6px; }
+.pdf-import h3 { margin: 0 0 6px; font-size: 14px; }
+.pdf-import p, .pdf-import a { font-size: 12px; margin: 6px 0 10px; }
+.pdf-import input { display: block; max-width: 100%; width: 100%; font-size: 12px; margin: 8px 0 12px; }
+.pdf-import button { width: 100%; }
+.source-provenance { padding: 10px 12px; border-left: 3px solid var(--teal); background: var(--teal-soft); font-size: 12px; }
 .text-button {
   color: var(--teal);
   font-size: 11px;

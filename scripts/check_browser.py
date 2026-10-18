@@ -1,6 +1,7 @@
 """Optional browser smoke check. Start the app first; see --help for replay checks."""
 
 import argparse
+import json
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
@@ -10,6 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", default="http://127.0.0.1:8765")
     parser.add_argument("--replay", action="store_true")
+    parser.add_argument("--pdf", action="store_true", help="Exercise a real prepared MinerU worker")
     args = parser.parse_args()
     shots = Path("docs/images")
     shots.mkdir(parents=True, exist_ok=True)
@@ -61,6 +63,36 @@ def main():
             page.locator("#review-button").click()
             expect(page.locator("#review-status")).to_contain_text("Awaiting")
             assert page.evaluate("window.injected === undefined")
+        if args.replay:
+            expect(page.locator("#pdf-import-button")).to_be_disabled()
+            expect(page.locator("#pdf-file")).to_be_disabled()
+        if args.pdf:
+            assert not args.replay, "PDF OCR requires the local application"
+            expect(page.locator("#pdf-import-button")).to_be_enabled()
+            sample = Path(__file__).resolve().parent.parent / "web/samples/atlas-scan.pdf"
+            page.locator("#pdf-file").set_input_files(sample)
+            with page.expect_response(
+                lambda response: response.url.endswith("/api/pdf/extract"), timeout=610000
+            ) as extraction:
+                page.locator("#pdf-import-button").click()
+            assert extraction.value.status == 201, extraction.value.text()
+            expect(page.locator("#pdf-status")).to_contain_text("Check the text")
+            expect(page.locator("#source-kind")).to_have_text("Local PDF")
+            expect(page.locator("#source-provenance")).to_contain_text("MinerU 4.0.12")
+            page.locator("#review-button").click()
+            expect(page.locator("#review-status")).to_contain_text("Awaiting")
+            expect(page.locator(".finding")).to_have_count(3)
+            page.locator(".evidence-link").first.click()
+            page.screenshot(path=str(shots / "pdf-import.png"), full_page=True)
+            page.locator("#approve-button").click()
+            expect(page.locator("#review-status")).to_contain_text("Published locally")
+            with page.expect_download() as download:
+                page.locator("#download-button").click()
+            assert download.value.suggested_filename == "tracework-review.json"
+            report = json.loads(Path(download.value.path()).read_text("utf-8"))
+            assert report["source"]["parser_version"] == "4.0.12"
+            assert report["source"]["local_only"] and not report["source"]["text_edited"]
+            assert len(report["source"]["pdf_sha256"]) == 64
         page.set_viewport_size({"width": 390, "height": 844})
         page.locator("#document-select").select_option("atlas-launch")
         page.locator("#review-button").click()

@@ -114,7 +114,7 @@
                 <span class="panel-label">Source document</span>
                 <h2 id="source-heading">Choose a document</h2>
               </div>
-              <span class="quiet-badge">Synthetic data</span>
+              <span class="quiet-badge" id="source-kind">Synthetic data</span>
             </div>
             <label class="field-label" for="document-select"
               >Sample document</label
@@ -122,6 +122,16 @@
               <option>Loading samples…</option>
             </select>
             <p class="document-description" id="document-description"></p>
+            <section class="pdf-import" aria-labelledby="pdf-heading">
+              <h3 id="pdf-heading">Import PDF · local MinerU</h3>
+              <p id="pdf-availability">Checking local PDF support…</p>
+              <label class="field-label" for="pdf-file">PDF file · up to 5 MiB / 5 pages</label>
+              <input id="pdf-file" type="file" accept=".pdf,application/pdf" disabled />
+              <button class="button secondary" id="pdf-import-button" disabled>Extract text locally</button>
+              <p id="pdf-status" role="status">Inspect the extracted text before running a review.</p>
+              <a href="./samples/atlas-scan.pdf" download>Download a synthetic scanned PDF</a>
+            </section>
+            <p id="source-provenance" class="source-provenance hidden"></p>
             <div class="document-toolbar">
               <span id="line-count">0 lines</span
               ><button class="text-button" id="edit-toggle">

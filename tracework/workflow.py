@@ -30,6 +30,7 @@ class ReviewState(TypedDict, total=False):
     approved: bool
     reviewer_note: str
     report_id: str
+    source: dict | None
     trace: Annotated[list[dict], operator.add]
 
 
@@ -160,6 +161,7 @@ class Lab:
                 "findings",
                 "rejected",
                 "reviewer_note",
+                "source",
             ]
         }
         payload["document_sha256"] = hashlib.sha256(state["document"].encode()).hexdigest()
@@ -179,7 +181,7 @@ class Lab:
     def config(run_id):
         return {"configurable": {"thread_id": run_id}}
 
-    def start(self, title: str, document: str, profile: str) -> dict:
+    def start(self, title: str, document: str, profile: str, *, source: dict | None = None) -> dict:
         if profile not in PROFILES:
             raise ValueError("Unknown harness profile.")
         run_id = str(uuid.uuid4())
@@ -196,6 +198,7 @@ class Lab:
                     "profile": profile,
                     "engine": self.engine,
                     "trace": [],
+                    "source": source,
                 },
                 self.config(run_id),
             )

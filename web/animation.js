@@ -4,7 +4,7 @@
   const $ = (id) => document.getElementById(id);
   const color = { ink: "#183447", muted: "#627783", line: "#dce5e9", teal: "#176d70", soft: "#e3f1ee", purple: "#7152a3", violet: "#f2edf8", amber: "#ac721a", rose: "#b65252" };
   const scenes = [
-    ["Belge", "Her şey bir belgeyle başlar.", "Kaynak metin, inceleme akışına veri olarak girer.", "Belgedeki talimatlar insan onayı yerine geçmez."],
+    ["PDF / metin", "PDF, yerelde inceleme metnine dönüşür.", "MinerU Basic / ONNX → metni kontrol et → LangGraph incelemesi", "PDF girişi isteğe bağlıdır. OCR yereldir; API anahtarı veya bulut servisi kullanılmaz."],
     ["LangGraph", "LangGraph, incelemenin adımlarını yönetir.", "StateGraph: read → review → verify → approval → publish / end", "Varsayılan motor açık kurallarla çalışır. Yerel incelemede Ollama isteğe bağlıdır."],
     ["Kanıt", "Her bulgu kaynak satırına bağlanır.", "Doğrulama, değiştirilebilir prompt metninin dışında uygulanır.", "Alıntı ve satır birebir eşleşmeli; desteklenmeyen ve yinelenen bulgular tutulmaz."],
     ["İnsan onayı", "Akış insan kararı için durur.", "interrupt() bekler; SQLiteSaver, graph durumunu saklar.", "Aynı kalıcı veriyle uygulama yeniden başlasa da bekleyen incelemeye devam edilir."],
@@ -70,6 +70,17 @@
       + card(800,500,728,180,"Ret → end","Command(resume={approved: false, ...})")
       + text(824,640,"Rapor yayımlanmaz; iş rejected olur.",24,color.rose);
   }
+  function pdfInput(p) {
+    return text(72,274,"İki giriş seçeneği: PDF veya doğrudan metin",25,color.teal,600)
+      + card(72,320,390,150,"Yerel PDF","En fazla 5 MiB / 5 sayfa",true)
+      + wire([480,395,570,395],true,p)
+      + card(590,320,420,150,"MinerU 4.0.12","Basic · ONNX · CPU OCR",true)
+      + wire([1030,395,1100,395],true,p)
+      + card(1120,320,408,150,"Çıkarılmış metin","İnsan kontrolünden sonra incele")
+      + box(72,530,1456,155,"#f8fafb")
+      + text(100,579,"PDF hash'i + sayfa sayısı + parser sürümü raporda korunur.",29,color.ink,600)
+      + text(100,628,"Alıntılar çıkarılan metne göre doğrulanır. OCR hatalarını özgün PDF'den kontrol et.",26,color.muted);
+  }
   function harness(stage,p) {
     let svg = box(72,258,1456,438,"#faf8fd","#e1d8ec")
       + text(100,300,"Harness² · İzole deney alanı",25,color.purple,600);
@@ -125,7 +136,7 @@
       ${text(72,75,"Tracework",35,color.ink,600)}${text(1528,75,`${stage+1} / 8`,25,color.muted,400,"end")}
       <line x1="72" y1="104" x2="1528" y2="104" stroke="${color.line}" stroke-width="2"/>
       ${text(72,174,title,45,color.ink,600)}${text(72,222,subtitle,26,color.muted)}
-      ${stage<5?reviewGraph(stage,p)+reviewDetail(stage,p):stage<7?harness(stage,p):replay(p)}
+      ${stage===0?pdfInput(p):stage<5?reviewGraph(stage,p)+reviewDetail(stage,p):stage<7?harness(stage,p):replay(p)}
       <line x1="72" y1="737" x2="1528" y2="737" stroke="${color.line}" stroke-width="2"/>
       ${text(72,788,caption,26,color.ink)}
       ${text(72,846,"LangGraph + Harness² · Bağımsız, açık kaynak belge inceleme demosu",22,color.muted)}

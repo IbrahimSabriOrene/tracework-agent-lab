@@ -14,7 +14,7 @@ Its timing is chosen for reading. No document is processed by opening the player
 
 | Time | Chapter | What the viewer sees |
 | --- | --- | --- |
-| 00:00–00:06 | Document | Synthetic Atlas source enters the workflow as untrusted text |
+| 00:00–00:06 | PDF / text | Optional local MinerU CPU extraction, text inspection, and PDF provenance |
 | 00:06–00:12 | LangGraph | `StateGraph` manages steps; two allowed offline profiles produce 1 and 3 findings |
 | 00:12–00:18 | Evidence | A finding must quote its complete source line; duplicates are withheld |
 | 00:18–00:24 | Human decision | `interrupt()` suspends work; `SQLiteSaver` preserves the same thread's state |
@@ -33,6 +33,8 @@ The browser player has play/pause, restart, seeking, and direct chapter selectio
 paused. `?autoplay=1` enables one playback unless reduced motion is requested by the device.
 Backgrounding the tab pauses playback. The MP4 is silent, has readable on-screen explanations,
 and contains no third-party brand assets or material from a private project.
+Its opening scene now includes optional local MinerU PDF extraction; the rest of the story
+continues with the resulting text. The PDF upload itself belongs to the local application.
 
 For LinkedIn, download `tracework-flow.mp4` and upload it as the post's video. A link to the
 player opens the interactive version; the MP4 itself does not have clickable player controls.

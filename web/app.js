@@ -24,7 +24,7 @@ function toast(message) {
 async function api(path, options = {}) {
   const response = await fetch(`./api/${path}`, {
     ...options,
-    headers: { "Content-Type": "application/json", ...options.headers },
+    headers: { ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }), ...options.headers },
   });
   const body = await response.json();
   if (!response.ok)
@@ -39,11 +39,13 @@ function setBusy(value) {
   busy = value;
   document
     .querySelectorAll(
-      "#review-button,#approve-button,#reject-button,#experiment-button",
+      "#review-button,#approve-button,#reject-button,#experiment-button,#document-select,#edit-toggle,input[name=profile]",
     )
     .forEach((button) => (button.disabled = value));
+  $("pdf-import-button").disabled = value || !local || !health?.pdf?.available;
+  $("pdf-file").disabled = value || !local || !health?.pdf?.available;
   $("review-button").firstChild.textContent = value
-    ? "Reviewing… "
+    ? "Working… "
     : "Run review ";
 }
 function profile() {
@@ -64,20 +66,73 @@ function renderSource(highlight = null) {
     .join("");
 }
 function selectDocument() {
-  selectedDocument = data.documents.find(
+  selectedDocument = {...data.documents.find(
     (doc) => doc.id === $("document-select").value,
-  );
+  )};
   current = null;
   editing = false;
   $("document-editor").classList.add("hidden");
   $("source-lines").classList.remove("hidden");
   $("edit-toggle").textContent = "Edit document";
   $("source-heading").textContent = selectedDocument.title;
-  $("document-description").textContent = selectedDocument.description;
+  $("document-description").textContent = selectedDocument.description || "Restored local text. Check the source before reviewing.";
   renderSource();
   renderReview();
+  renderProvenance();
+}
+function renderProvenance() {
+  const source = current?.source ?? selectedDocument?.source;
+  $("source-kind").textContent = source ? "Local PDF" : "Synthetic data";
+  $("source-provenance").classList.toggle("hidden", !source);
+  $("source-provenance").textContent = source
+    ? `MinerU ${source.parser_version} · ${source.pages} page(s) · local Basic/CPU. Quotes refer to the extracted text, which may contain OCR errors. Check it against your PDF. ${source.text_edited ? "Text was edited after extraction." : ""}`
+    : "";
+  $("pdf-status").textContent = source
+    ? current
+      ? `Extracted ${source.pages} page(s). Review state: ${current.status.replaceAll("_", " ")}.`
+      : `Extracted ${source.pages} page(s). Check the text, then run a review.`
+    : "Inspect the extracted text before running a review.";
+}
+function selectLocalSource() {
+  if (!data.documents.some((doc) => doc.id === selectedDocument.id)) {
+    data.documents.push({...selectedDocument});
+    $("document-select").add(new Option(`${selectedDocument.title} · local`, selectedDocument.id));
+  }
+  $("document-select").value = selectedDocument.id;
+}
+async function importPdf() {
+  if (busy || !local || !health?.pdf?.available) return;
+  const file = $("pdf-file").files[0];
+  if (!file) return toast("Choose a PDF first.");
+  if (file.size > health.pdf.max_bytes) return toast("PDF exceeds the 5 MiB limit.");
+  const form = new FormData();
+  form.append("file", file);
+  setBusy(true);
+  $("pdf-import-button").textContent = "Extracting locally…";
+  $("pdf-status").textContent = "MinerU is working locally. CPU extraction can take several minutes.";
+  try {
+    const imported = await api("pdf/extract", {method: "POST", body: form});
+    selectedDocument = {id: `pdf-${imported.import_id}`, ...imported, text: imported.document};
+    selectLocalSource();
+    current = null;
+    editing = false;
+    $("document-editor").classList.add("hidden");
+    $("source-lines").classList.remove("hidden");
+    $("edit-toggle").textContent = "Edit document";
+    $("source-heading").textContent = imported.title;
+    $("document-description").textContent = "Extracted locally. Check the text, then choose Run review.";
+    $("pdf-status").textContent = `Extracted ${imported.source.pages} page(s). No review has started yet.`;
+    renderSource(); renderReview(); renderProvenance();
+  } catch (error) {
+    $("pdf-status").textContent = error.message;
+    toast(error.message);
+  } finally {
+    setBusy(false);
+    $("pdf-import-button").textContent = "Extract text locally";
+  }
 }
 function renderReview() {
+  renderProvenance();
   const status = current?.status || "idle";
   const labels = {
     idle: "Ready to review",
@@ -161,6 +216,7 @@ async function runReview() {
           title: selectedDocument.title,
           document,
           profile: profile(),
+          pdf_import_id: selectedDocument.import_id || null,
         }),
       });
     else
@@ -222,10 +278,13 @@ async function loadHistory() {
       try {
         current = await api(`reviews/${button.dataset.run}`);
         selectedDocument = {
-          id: "restored",
+          id: `restored-${current.run_id}`,
           title: current.title,
           text: current.document,
+          source: current.source,
+          import_id: current.source?.import_id,
         };
+        selectLocalSource();
         editing = false;
         $("document-editor").classList.add("hidden");
         $("source-lines").classList.remove("hidden");
@@ -234,6 +293,7 @@ async function loadHistory() {
           "Restored from the local SQLite checkpoint.";
         renderSource();
         renderReview();
+        renderProvenance();
       } catch (error) {
         toast(error.message);
       }
@@ -313,6 +373,7 @@ $("review-button").addEventListener("click", runReview);
 $("approve-button").addEventListener("click", () => decide(true));
 $("reject-button").addEventListener("click", () => decide(false));
 $("experiment-button").addEventListener("click", runExperiment);
+$("pdf-import-button").addEventListener("click", importPdf);
 $("edit-toggle").addEventListener("click", () => {
   if (!local)
     return toast(
@@ -321,6 +382,7 @@ $("edit-toggle").addEventListener("click", () => {
   editing = !editing;
   if (editing) $("document-editor").value = selectedDocument.text;
   else selectedDocument.text = $("document-editor").value;
+  if (!editing && selectedDocument.source) selectedDocument.source.text_edited = true;
   $("document-editor").classList.toggle("hidden", !editing);
   $("source-lines").classList.toggle("hidden", editing);
   $("edit-toggle").textContent = editing ? "View source" : "Edit document";
@@ -382,6 +444,13 @@ async function initialize() {
       $("experiment-button").textContent = "Inspect recorded experiment";
       $("experiment-mode").disabled = true;
     }
+    $("pdf-availability").textContent = !local
+      ? "PDF extraction needs the local application. This hosted site never uploads your PDF."
+      : health.pdf?.available
+        ? "Local MinerU Basic/CPU is prepared. No API key or cloud OCR is used."
+        : "Setup required: uv run python scripts/setup_pdf.py — then reload this page.";
+    $("pdf-import-button").disabled = !local || !health.pdf?.available;
+    $("pdf-file").disabled = !local || !health.pdf?.available;
     selectDocument();
     renderEvaluation();
     if (data.experiment) showExperiment(data.experiment, true);
